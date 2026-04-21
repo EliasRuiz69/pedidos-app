@@ -10,11 +10,8 @@ import type { OrderWithItems } from '@/types'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   })
 }
 
@@ -31,7 +28,6 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) { router.push('/login'); return }
-
     async function load() {
       try {
         const data = await getOrderWithItems(id, user!.id)
@@ -54,17 +50,30 @@ export default function OrderDetailPage() {
 
   if (authLoading || orderLoading) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4">
-        <p className="text-sm text-gray-400">Cargando pedido...</p>
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <div className="mb-6 flex items-start justify-between">
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-7 w-52" />
+            <div className="skeleton h-3 w-36" />
+          </div>
+          <div className="skeleton h-4 w-24" />
+        </div>
+        <div className="skeleton h-48 w-full rounded-2xl mb-4" />
+        <div className="skeleton h-16 w-full rounded-2xl" />
       </div>
     )
   }
 
   if (error || !order) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center">
-        <p className="text-sm text-red-600 mb-4">{error || 'Pedido no encontrado'}</p>
-        <Link href="/account/orders" className="text-sm font-medium text-gray-900 underline underline-offset-4">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-950/30 border border-red-900/30">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <p className="text-sm text-red-400 mb-5">{error || 'Pedido no encontrado'}</p>
+        <Link href="/account/orders" className="rounded-xl border border-neutral-800 px-4 py-2 text-sm font-medium text-neutral-400 hover:border-neutral-700 hover:text-neutral-50 transition-all">
           Ver todos los pedidos
         </Link>
       </div>
@@ -72,54 +81,65 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-2xl px-4 py-10">
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Pedido #{order.id.slice(0, 8).toUpperCase()}
+          <h1 className="text-2xl font-bold text-neutral-50 tracking-tight font-mono">
+            #{order.id.slice(0, 8).toUpperCase()}
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
+          <p className="text-xs text-neutral-600 mt-1">{formatDate(order.created_at)}</p>
         </div>
         <Link
           href="/account/orders"
-          className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-200 transition-colors"
         >
-          ← Mis pedidos
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Mis pedidos
         </Link>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white px-4 mb-4">
+      {/* Items */}
+      <div className="rounded-2xl border border-neutral-800 bg-neutral-900 px-5 mb-4">
         {order.order_items.map((item, index) => (
           <div
             key={item.id}
             className={`flex items-center justify-between py-4 ${
-              index < order.order_items.length - 1 ? 'border-b border-gray-100' : ''
+              index < order.order_items.length - 1 ? 'border-b border-neutral-800' : ''
             }`}
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium text-gray-900">{item.products.name}</span>
-              <span className="text-xs text-gray-400">x{item.quantity} — ${Number(item.price).toFixed(2)} c/u</span>
+              <span className="text-sm font-medium text-neutral-50">{item.products.name}</span>
+              <span className="text-xs text-neutral-600">
+                ×{item.quantity} · ${Number(item.price).toFixed(2)} c/u
+              </span>
             </div>
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-bold text-neutral-50 tabular-nums">
               ${(item.quantity * Number(item.price)).toFixed(2)}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-6 py-4 mb-6">
-        <span className="text-sm font-medium text-gray-700">Total</span>
-        <span className="text-xl font-bold text-gray-900">${Number(order.total).toFixed(2)}</span>
+      {/* Total */}
+      <div className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-900 px-6 py-5 mb-6">
+        <span className="text-sm font-medium text-neutral-400">Total del pedido</span>
+        <span className="text-2xl font-bold text-neutral-50 tabular-nums">
+          ${Number(order.total).toFixed(2)}
+        </span>
       </div>
 
+      {/* Reorder */}
       {reordered ? (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 text-center">
+          <div className="rounded-xl border border-green-800/40 bg-green-950/30 px-4 py-3 text-sm text-green-400 text-center">
             Productos agregados al carrito
-          </p>
+          </div>
           <Link
             href="/cart"
-            className="flex w-full items-center justify-center rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+            className="flex w-full items-center justify-center rounded-xl bg-orange-500 px-4 py-3.5 text-sm font-bold text-white hover:bg-orange-600 transition-colors"
           >
             Ir al carrito
           </Link>
@@ -127,7 +147,7 @@ export default function OrderDetailPage() {
       ) : (
         <button
           onClick={handleReorder}
-          className="w-full rounded-xl border border-gray-900 px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+          className="w-full rounded-xl border border-neutral-700 px-4 py-3.5 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 hover:border-neutral-600 transition-all"
         >
           Volver a pedir
         </button>

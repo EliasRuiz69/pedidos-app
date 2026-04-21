@@ -30,15 +30,10 @@ export default function AccountPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) { router.push('/login'); return }
-
     async function loadProfile() {
       try {
         const profile = await getProfile(user!.id)
-        if (profile) {
-          setName(profile.name)
-          setPhone(profile.phone)
-          setAddress(profile.address)
-        }
+        if (profile) { setName(profile.name); setPhone(profile.phone); setAddress(profile.address) }
       } catch {
         setError('Error al cargar el perfil')
       } finally {
@@ -50,17 +45,10 @@ export default function AccountPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-    setSuccessMsg('')
-    setSaving(true)
+    setError(''); setSuccessMsg(''); setSaving(true)
     try {
       if (!user) throw new Error('Sesión no encontrada')
-      const { error: saveError } = await saveProfile(user.id, {
-        email: user.email ?? '',
-        name,
-        phone,
-        address,
-      })
+      const { error: saveError } = await saveProfile(user.id, { email: user.email ?? '', name, phone, address })
       if (saveError) throw new Error(saveError)
       setSuccessMsg('Perfil actualizado correctamente')
     } catch (err: unknown) {
@@ -72,24 +60,15 @@ export default function AccountPage() {
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault()
-    setPasswordError('')
-    setPasswordSuccess('')
-    if (newPassword.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres')
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Las contraseñas no coinciden')
-      return
-    }
+    setPasswordError(''); setPasswordSuccess('')
+    if (newPassword.length < 6) { setPasswordError('La contraseña debe tener al menos 6 caracteres'); return }
+    if (newPassword !== confirmPassword) { setPasswordError('Las contraseñas no coinciden'); return }
     setPasswordLoading(true)
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
       if (updateError) throw updateError
       setPasswordSuccess('Contraseña actualizada correctamente')
-      setNewPassword('')
-      setConfirmPassword('')
-      setShowPasswordForm(false)
+      setNewPassword(''); setConfirmPassword(''); setShowPasswordForm(false)
     } catch (err: unknown) {
       setPasswordError(err instanceof Error ? err.message : 'Error al cambiar la contraseña')
     } finally {
@@ -98,180 +77,161 @@ export default function AccountPage() {
   }
 
   async function handleDelete() {
-    setError('')
-    setDeleting(true)
+    setError(''); setDeleting(true)
     try {
       if (!user) throw new Error('Sesión no encontrada')
       const { error: deleteError } = await deleteProfile(user.id)
       if (deleteError) throw new Error(deleteError)
-      router.push('/')
-      router.refresh()
+      router.push('/'); router.refresh()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al eliminar perfil')
-      setDeleting(false)
-      setShowConfirm(false)
+      setDeleting(false); setShowConfirm(false)
     }
   }
 
   if (authLoading || profileLoading) {
     return (
-      <div className="max-w-md mx-auto py-16 px-4">
-        <p className="text-sm text-gray-500">Cargando perfil...</p>
+      <div className="mx-auto max-w-lg px-4 py-10">
+        <div className="mb-8 flex gap-4">
+          <div className="skeleton h-10 w-10 rounded-xl" />
+          <div className="flex flex-col gap-2 flex-1">
+            <div className="skeleton h-5 w-32" />
+            <div className="skeleton h-3 w-48" />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="skeleton h-3 w-24" />
+              <div className="skeleton h-10 w-full rounded-xl" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-md mx-auto py-16 px-4">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-bold text-gray-900">Mi perfil</h1>
+    <div className="mx-auto max-w-lg px-4 py-10">
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-50 tracking-tight">Mi perfil</h1>
+          <p className="mt-1 text-sm text-neutral-600">{user?.email}</p>
+        </div>
         <Link
           href="/account/orders"
-          className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-1.5 rounded-xl border border-neutral-800 px-3 py-2 text-sm font-medium text-neutral-400 hover:border-neutral-700 hover:text-neutral-50 transition-all"
         >
-          Mis pedidos →
+          Mis pedidos
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
         </Link>
       </div>
-      <p className="text-sm text-gray-500 mb-8">{user?.email}</p>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Nombre completo</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Juan Pérez"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
-          />
-        </div>
+      {/* Profile form */}
+      <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
+        <form onSubmit={handleSave} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Nombre completo</label>
+            <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Pérez" className="input-dark" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Teléfono</label>
+            <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+52 555 000 0000" className="input-dark" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Dirección de entrega</label>
+            <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle, número, colonia, ciudad" rows={3} className="input-dark resize-none" />
+          </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Teléfono</label>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+52 555 000 0000"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
-          />
-        </div>
+          {error && <div className="rounded-xl border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-400">{error}</div>}
+          {successMsg && <div className="rounded-xl border border-green-800/40 bg-green-950/30 px-4 py-3 text-sm text-green-400">{successMsg}</div>}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Dirección de entrega</label>
-          <textarea
-            required
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Calle, número, colonia, ciudad"
-            rows={3}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors resize-none"
-          />
-        </div>
+          <button type="submit" disabled={saving} className="btn-primary mt-1">
+            {saving ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Guardando...
+              </span>
+            ) : 'Guardar cambios'}
+          </button>
+        </form>
+      </div>
 
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
-        )}
-        {successMsg && (
-          <p className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2">{successMsg}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-all"
-        >
-          {saving ? 'Guardando...' : 'Guardar cambios'}
-        </button>
-      </form>
-
-      <div className="mt-8 border-t pt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-gray-700">Contraseña</h2>
+      {/* Password section */}
+      <div className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-neutral-300">Contraseña</h2>
+            <p className="text-xs text-neutral-600 mt-0.5">Cambia tu contraseña de acceso</p>
+          </div>
           <button
             type="button"
             onClick={() => { setShowPasswordForm(!showPasswordForm); setPasswordError(''); setPasswordSuccess('') }}
-            className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+            className="text-xs font-medium text-orange-400 hover:text-orange-300 transition-colors"
           >
-            {showPasswordForm ? 'Cancelar' : 'Cambiar contraseña'}
+            {showPasswordForm ? 'Cancelar' : 'Cambiar'}
           </button>
         </div>
 
         {passwordSuccess && !showPasswordForm && (
-          <p className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 mb-4">
+          <div className="mt-4 rounded-xl border border-green-800/40 bg-green-950/30 px-4 py-3 text-sm text-green-400">
             {passwordSuccess}
-          </p>
+          </div>
         )}
 
         {showPasswordForm && (
-          <form onSubmit={handlePasswordChange} className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Nueva contraseña</label>
-              <input
-                type="password"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
-              />
+          <form onSubmit={handlePasswordChange} className="mt-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Nueva contraseña</label>
+              <input type="password" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="input-dark" />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Confirmar contraseña</label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repite la nueva contraseña"
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
-              />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Confirmar contraseña</label>
+              <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repite la nueva contraseña" className="input-dark" />
             </div>
-            {passwordError && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{passwordError}</p>
-            )}
-            <button
-              type="submit"
-              disabled={passwordLoading}
-              className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-all"
-            >
+            {passwordError && <div className="rounded-xl border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-400">{passwordError}</div>}
+            <button type="submit" disabled={passwordLoading} className="btn-primary">
               {passwordLoading ? 'Actualizando...' : 'Actualizar contraseña'}
             </button>
           </form>
         )}
       </div>
 
-      <div className="mt-8 border-t pt-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-1">Zona de peligro</h2>
-        <p className="text-xs text-gray-400 mb-4">
-          Eliminar tu perfil borra tus datos de entrega. No se puede deshacer.
+      {/* Danger zone */}
+      <div className="mt-4 rounded-2xl border border-red-900/30 bg-red-950/10 p-6">
+        <h2 className="text-sm font-semibold text-red-400 mb-1">Zona de peligro</h2>
+        <p className="text-xs text-neutral-600 mb-4">
+          Eliminar tu perfil borra tus datos de entrega. Esta acción no se puede deshacer.
         </p>
-
         {!showConfirm ? (
           <button
             onClick={() => setShowConfirm(true)}
-            className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="rounded-xl border border-red-900/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-950/40 transition-colors min-h-[40px]"
           >
             Eliminar perfil
           </button>
         ) : (
-          <div className="flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-700">
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-medium text-red-400">
               ¿Confirmas que quieres eliminar tu perfil?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
               >
                 {deleting ? 'Eliminando...' : 'Sí, eliminar'}
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className="rounded-xl border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800 transition-colors"
               >
                 Cancelar
               </button>

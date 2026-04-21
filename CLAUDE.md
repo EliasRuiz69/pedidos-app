@@ -65,11 +65,41 @@
 
 ## UI / UX
 
-* Diseño limpio y minimalista
-* Mobile-first
-* Interfaces rápidas y sin fricción
-* Mostrar feedback claro (loading, errores, éxito)
-* Evitar complejidad innecesaria
+### Filosofía de Diseño
+* Estética: **utilitaria-refinada** — funcional como una app de trabajo, pero visualmente cuidada
+* Cada pantalla debe tener una intención clara y una jerarquía visual obvia
+* Diseño memorable: evitar interfaces genéricas o "de plantilla"
+
+### Visual & Estilo
+* Mobile-first siempre
+* Tema oscuro como base, con acentos en color naranja/ámbar (#F97316) para acciones clave
+* Tipografía: display font con carácter (ej. Sora, DM Sans, o similar) — nunca Inter o Arial
+* Usar CSS variables para colores y espaciado consistente
+* Fondos con profundidad: gradientes sutiles, sombras, no colores sólidos planos
+
+### Composición & Layout
+* Layouts asimétricos cuando aporten claridad (no por defecto simétrico)
+* Jerarquía visual clara: lo más importante ocupa más espacio
+* Generoso uso de espacio negativo en pantallas de detalle
+* Densidad controlada en listados (pedidos, productos)
+
+### Animaciones & Feedback
+* Micro-interacciones en botones, cards y transiciones de estado
+* Staggered reveals en listas (carga escalonada de items)
+* Estados claros y visibles: loading skeleton, error con mensaje, éxito con confirmación
+* Transiciones suaves entre páginas (no cambios bruscos)
+
+### Componentes
+* Cards de producto con imagen, nombre, precio y CTA visible sin scroll
+* Botones de acción primaria grandes y fáciles de tocar (mínimo 44px altura)
+* Formularios simples, un campo a la vez cuando sea posible
+* Badge de estado en pedidos (pendiente, en proceso, entregado) con color semántico
+
+### Lo que NUNCA hacer
+* No usar gradientes purple/violeta genéricos
+* No usar layouts de cuadrícula uniforme sin intención
+* No dejar pantallas sin estado de carga o error
+* No usar más de 2 familias tipográficas
 
 ## Flujo de Desarrollo
 

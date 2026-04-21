@@ -27,14 +27,12 @@ export default function ProductForm({
   const [description, setDescription] = useState(initialValues.description)
   const [price, setPrice] = useState(initialValues.price.toString())
   const [imageUrl, setImageUrl] = useState(initialValues.image_url)
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [localPreview, setLocalPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Revocar object URL al desmontar para liberar memoria
   useEffect(() => {
     return () => { if (localPreview) URL.revokeObjectURL(localPreview) }
   }, [localPreview])
@@ -58,17 +56,13 @@ export default function ProductForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setUploadError('')
-
     let finalImageUrl = imageUrl
 
     if (selectedFile) {
       setUploading(true)
       const { url, error: uploadErr } = await uploadProductImage(selectedFile)
       setUploading(false)
-      if (uploadErr || !url) {
-        setUploadError(uploadErr ?? 'Error al subir imagen')
-        return
-      }
+      if (uploadErr || !url) { setUploadError(uploadErr ?? 'Error al subir imagen'); return }
       finalImageUrl = url
       setImageUrl(url)
     }
@@ -85,48 +79,54 @@ export default function ProductForm({
   const isSubmitting = uploading || loading
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Nombre</label>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Name */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Nombre</label>
         <input
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nombre del producto"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
+          className="input-dark"
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Descripción</label>
+      {/* Description */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Descripción</label>
         <textarea
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Descripción del producto"
           rows={3}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors resize-none"
+          className="input-dark resize-none"
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Precio</label>
-        <input
-          type="number"
-          required
-          min="0"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="0.00"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
-        />
+      {/* Price */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Precio</label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-neutral-600">$</span>
+          <input
+            type="number"
+            required
+            min="0"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="0.00"
+            className="input-dark pl-7"
+          />
+        </div>
       </div>
 
-      {/* Imagen */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Imagen</label>
+      {/* Image */}
+      <div className="flex flex-col gap-3">
+        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Imagen</label>
 
         {/* Preview */}
         {previewSrc && (
@@ -134,15 +134,15 @@ export default function ProductForm({
             <img
               src={previewSrc}
               alt="Vista previa"
-              className="h-36 w-36 rounded-lg object-cover border border-gray-200"
+              className="h-36 w-36 rounded-xl object-cover border border-neutral-700"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
             {localPreview && (
               <button
                 type="button"
                 onClick={handleRemoveFile}
-                className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white text-xs hover:bg-gray-600 transition-colors"
-                title="Quitar imagen seleccionada"
+                className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-700 text-neutral-300 text-xs hover:bg-neutral-600 transition-colors"
+                title="Quitar imagen"
               >
                 ×
               </button>
@@ -150,9 +150,12 @@ export default function ProductForm({
           </div>
         )}
 
-        {/* Upload area */}
+        {/* File upload area */}
         <div className="flex items-center gap-3">
-          <label className="cursor-pointer rounded-lg border border-dashed border-gray-300 px-4 py-2 text-sm text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors">
+          <label className="cursor-pointer flex items-center gap-2 rounded-xl border border-dashed border-neutral-700 px-4 py-2.5 text-sm text-neutral-500 hover:border-neutral-500 hover:text-neutral-300 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
             {selectedFile ? selectedFile.name : 'Seleccionar archivo'}
             <input
               ref={fileInputRef}
@@ -163,39 +166,51 @@ export default function ProductForm({
             />
           </label>
           {selectedFile && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-neutral-600">
               {(selectedFile.size / 1024).toFixed(0)} KB
             </span>
           )}
         </div>
 
-        {/* URL manual como alternativa */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-400">O pega una URL de imagen</span>
+        {/* URL fallback */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-neutral-700">O pega una URL de imagen</span>
           <input
             type="url"
             value={imageUrl}
             onChange={(e) => { setImageUrl(e.target.value); handleRemoveFile() }}
             placeholder="https://..."
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 transition-colors"
+            className="input-dark"
           />
         </div>
 
         {uploadError && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{uploadError}</p>
+          <div className="rounded-xl border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-400">
+            {uploadError}
+          </div>
         )}
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        <div className="rounded-xl border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-400">
+          {error}
+        </div>
       )}
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-all"
+        className="btn-primary"
       >
-        {uploading ? 'Subiendo imagen...' : loading ? 'Guardando...' : submitLabel}
+        {isSubmitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            {uploading ? 'Subiendo imagen...' : 'Guardando...'}
+          </span>
+        ) : submitLabel}
       </button>
     </form>
   )
