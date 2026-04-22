@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAdminGuard } from '@/hooks/useAdminGuard'
 import { getProducts, deleteProduct } from '@/lib/products'
+import { getPromoLabel } from '@/lib/promotions'
 import type { Product } from '@/types'
 
 export default function AdminProductsPage() {
@@ -128,7 +129,14 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <p className="font-semibold text-neutral-100">{product.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-neutral-100">{product.name}</p>
+                      {getPromoLabel(product) && (
+                        <span className="rounded-md bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 text-[10px] font-bold text-orange-400 leading-none">
+                          {getPromoLabel(product)}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-neutral-600 line-clamp-1 mt-0.5">{product.description}</p>
                   </td>
                   <td className="px-4 py-3.5 font-bold text-neutral-50 tabular-nums">

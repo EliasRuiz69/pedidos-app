@@ -38,6 +38,11 @@ export default function ProductCard({ product }: Props) {
             </svg>
           </div>
         )}
+        {promoLabel && (
+          <div className="absolute top-2.5 left-2.5 rounded-lg bg-orange-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+            {promoLabel}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -50,11 +55,23 @@ export default function ProductCard({ product }: Props) {
             {product.description}
           </p>
         )}
-        <div className="mt-auto pt-3 flex items-center justify-between">
-          <p className="text-2xl font-bold text-neutral-50 tracking-tight">
-            <span className="text-sm font-normal text-neutral-500 mr-0.5">$</span>
-            {product.price.toFixed(2)}
-          </p>
+        <div className="mt-auto pt-3 flex items-end justify-between gap-2">
+          <div className="flex flex-col">
+            {hasPriceDiscount && (
+              <span className="text-sm text-neutral-600 line-through tabular-nums">
+                ${product.price.toFixed(2)}
+              </span>
+            )}
+            <p className={`text-2xl font-bold tracking-tight ${hasPriceDiscount ? 'text-orange-400' : 'text-neutral-50'}`}>
+              <span className="text-sm font-normal mr-0.5 opacity-70">$</span>
+              {effectivePrice.toFixed(2)}
+            </p>
+          </div>
+          {product.is_promo && product.promo_type === 'quantity' && promoLabel && (
+            <span className="text-xs text-orange-400 font-medium text-right leading-tight">
+              {promoLabel}
+            </span>
+          )}
         </div>
         <button
           onClick={handleAdd}

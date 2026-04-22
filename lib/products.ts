@@ -3,7 +3,11 @@ import type { Product } from '@/types'
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const { data, error } = await supabase.from('products').select('*')
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('is_promo', { ascending: false })
+      .order('name', { ascending: true })
     if (error) throw error
     return data as Product[]
   } catch {

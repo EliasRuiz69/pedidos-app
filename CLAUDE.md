@@ -127,6 +127,17 @@
 * No escribir código innecesariamente complejo
 * No dejar tareas sin resolver
 
+## Modificación de Archivos Compartidos
+
+Antes de modificar cualquier archivo central (`lib/supabaseClient.ts`, `types/index.ts`, `store/`, o cualquier lib compartida), seguir este proceso obligatorio:
+
+1. Identificar todos los archivos que importan o dependen del archivo a modificar
+2. Verificar que el cambio no rompe ninguno de esos consumidores
+3. Ejecutar `tsc --noEmit` y confirmar cero errores
+4. Revisar mentalmente el comportamiento esperado en cada flujo afectado (auth, catálogo, carrito, admin, etc.)
+
+**Nunca cambiar un archivo compartido solo para resolver un problema puntual sin evaluar el impacto global.**
+
 ## Objetivo Final
 
 Construir una aplicación escalable, segura, mantenible, lista para producción y fácil de extender
