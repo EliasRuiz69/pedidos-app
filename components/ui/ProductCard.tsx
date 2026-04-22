@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useCartStore } from '@/store/useCartStore'
+import { getEffectivePrice, getPromoLabel } from '@/lib/promotions'
 import type { Product } from '@/types'
 
 type Props = { product: Product }
@@ -9,6 +10,10 @@ type Props = { product: Product }
 export default function ProductCard({ product }: Props) {
   const addItem = useCartStore((state) => state.addItem)
   const [added, setAdded] = useState(false)
+
+  const promoLabel = getPromoLabel(product)
+  const effectivePrice = getEffectivePrice(product)
+  const hasPriceDiscount = product.is_promo && product.promo_type === 'price'
 
   function handleAdd() {
     addItem(product)

@@ -37,7 +37,7 @@ export default function OrderConfirmationPage() {
         const cartItems = (itemsData ?? []).map((row: {
           quantity: number
           price: number
-          products: { id: string; name: string; description: string; price: number; image_url: string }
+          products: { id: string; name: string; description: string; price: number; image_url: string; is_promo: boolean; promo_type: import('@/types').PromoType | null; promo_config: import('@/types').PromoConfig | null }
         }) => ({ product: row.products, quantity: row.quantity }))
         setWhatsappLink(buildWhatsAppLink(buildWhatsAppMessage(fetchedProfile, cartItems, fetchedOrder.total)))
         setOrder(fetchedOrder)

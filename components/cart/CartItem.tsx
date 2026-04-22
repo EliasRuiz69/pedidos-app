@@ -1,6 +1,7 @@
 'use client'
 
 import { useCartStore } from '@/store/useCartStore'
+import { getItemTotal, getPromoLabel, getPromoSavings } from '@/lib/promotions'
 import type { CartItem as CartItemType } from '@/types'
 
 type Props = { item: CartItemType }
@@ -10,10 +11,14 @@ export default function CartItem({ item }: Props) {
   const updateQuantity = useCartStore((state) => state.updateQuantity)
   const { product, quantity } = item
 
+  const promoLabel = getPromoLabel(product)
+  const subtotal = getItemTotal(product, quantity)
+  const savings = getPromoSavings(product, quantity)
+
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-neutral-800 last:border-0">
+    <div className="flex items-start gap-4 py-4 border-b border-neutral-800 last:border-0">
       {/* Thumbnail */}
-      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-800">
+      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-800">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -27,16 +32,24 @@ export default function CartItem({ item }: Props) {
             </svg>
           </div>
         )}
+        {promoLabel && (
+          <div className="absolute top-0 left-0 rounded-br-lg rounded-tl-xl bg-orange-500 px-1.5 py-0.5 text-[9px] font-bold text-white leading-tight">
+            {promoLabel}
+          </div>
+        )}
       </div>
 
       {/* Info */}
       <div className="flex flex-1 flex-col gap-0.5 min-w-0">
         <p className="font-medium text-neutral-50 truncate text-sm">{product.name}</p>
         <p className="text-xs text-neutral-500">${product.price.toFixed(2)} c/u</p>
+        {savings > 0 && (
+          <p className="text-xs text-orange-400">Ahorras ${savings.toFixed(2)}</p>
+        )}
       </div>
 
       {/* Quantity controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 mt-0.5">
         <button
           onClick={() => updateQuantity(product.id, quantity - 1)}
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-50 hover:bg-neutral-800 transition-all text-base leading-none"
@@ -53,14 +66,21 @@ export default function CartItem({ item }: Props) {
       </div>
 
       {/* Subtotal */}
-      <p className="w-20 text-right font-bold text-neutral-50 text-sm tabular-nums">
-        ${(product.price * quantity).toFixed(2)}
-      </p>
+      <div className="flex flex-col items-end gap-0.5 mt-0.5">
+        <p className="w-20 text-right font-bold text-neutral-50 text-sm tabular-nums">
+          ${subtotal.toFixed(2)}
+        </p>
+        {savings > 0 && (
+          <p className="text-xs text-neutral-600 line-through tabular-nums">
+            ${(product.price * quantity).toFixed(2)}
+          </p>
+        )}
+      </div>
 
       {/* Remove */}
       <button
         onClick={() => removeItem(product.id)}
-        className="text-neutral-700 hover:text-red-400 transition-colors"
+        className="text-neutral-700 hover:text-red-400 transition-colors mt-1"
         aria-label="Eliminar producto"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

@@ -1,9 +1,24 @@
+export type PromoType = 'price' | 'quantity'
+
+export type PromoPriceConfig = {
+  promo_price: number
+}
+
+export type PromoQuantityConfig =
+  | { subtype: 'buy_x_pay_y'; buy: number; pay: number }
+  | { subtype: 'percentage'; min_quantity: number; discount: number }
+
+export type PromoConfig = PromoPriceConfig | PromoQuantityConfig
+
 export type Product = {
   id: string
   name: string
   description: string
   price: number
   image_url: string
+  is_promo: boolean
+  promo_type: PromoType | null
+  promo_config: PromoConfig | null
 }
 
 export type CartItem = {

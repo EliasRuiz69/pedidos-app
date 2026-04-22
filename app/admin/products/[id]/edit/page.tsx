@@ -85,6 +85,9 @@ export default function EditProductPage() {
             description: product.description,
             price: product.price,
             image_url: product.image_url,
+            is_promo: product.is_promo,
+            promo_type: product.promo_type,
+            promo_config: product.promo_config,
           }}
           onSubmit={handleSubmit}
           loading={saving}

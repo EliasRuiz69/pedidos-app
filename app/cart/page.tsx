@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { getCurrentUserProfile } from '@/lib/profile'
 import { createOrder } from '@/lib/orders'
 import { useCartStore } from '@/store/useCartStore'
+import { computeCartTotal } from '@/lib/promotions'
 import CartItem from '@/components/cart/CartItem'
 
 export default function CartPage() {
@@ -17,7 +18,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const totalPrice = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0)
+  const { total, savings } = computeCartTotal(items)
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
 
   async function handleCheckout() {
@@ -27,7 +28,7 @@ export default function CartPage() {
       if (!user) { router.push('/login'); return }
       const profile = await getCurrentUserProfile()
       if (!profile) { router.push('/complete-profile'); return }
-      const { orderId, error: orderError } = await createOrder(user.id, items, totalPrice)
+      const { orderId, error: orderError } = await createOrder(user.id, items, total)
       if (orderError) throw new Error(orderError)
       clearCart()
       router.push(`/order-confirmation/${orderId}`)
@@ -83,12 +84,30 @@ export default function CartPage() {
         ))}
       </div>
 
-      {/* Total */}
-      <div className="mt-4 flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-900 px-6 py-5">
-        <span className="text-sm font-medium text-neutral-400">Total del pedido</span>
-        <span className="text-2xl font-bold text-neutral-50 tabular-nums">
-          ${totalPrice.toFixed(2)}
-        </span>
+      {/* Total summary */}
+      <div className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        {savings > 0 && (
+          <div className="mb-3 flex items-center justify-between text-sm border-b border-neutral-800 pb-3">
+            <span className="text-neutral-500">Subtotal sin promo</span>
+            <span className="text-neutral-600 line-through tabular-nums">
+              ${(total + savings).toFixed(2)}
+            </span>
+          </div>
+        )}
+        {savings > 0 && (
+          <div className="mb-3 flex items-center justify-between text-sm">
+            <span className="text-orange-400">Descuento aplicado</span>
+            <span className="font-semibold text-orange-400 tabular-nums">−${savings.toFixed(2)}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <span className={`font-medium ${savings > 0 ? 'text-neutral-200' : 'text-neutral-400'}`}>
+            Total del pedido
+          </span>
+          <span className="text-2xl font-bold text-neutral-50 tabular-nums">
+            ${total.toFixed(2)}
+          </span>
+        </div>
       </div>
 
       {error && (
