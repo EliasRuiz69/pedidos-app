@@ -59,6 +59,26 @@ export default function AdminProductsPage() {
     )
   }
 
+  const ProductImage = ({ product }: { product: Product }) => (
+    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-neutral-800 border border-neutral-700">
+      {product.image_url ? (
+        <Image
+          src={product.image_url}
+          alt={product.name}
+          fill
+          className="object-cover"
+          onError={() => {}}
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center text-neutral-700">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
+          </svg>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
@@ -70,12 +90,13 @@ export default function AdminProductsPage() {
         </div>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
+          className="flex items-center gap-1.5 rounded-xl bg-orange-500 px-3 py-2 sm:px-4 text-sm font-semibold text-white hover:bg-orange-600 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Nuevo producto
+          <span className="hidden sm:inline">Nuevo producto</span>
+          <span className="sm:hidden">Nuevo</span>
         </Link>
       </div>
 
@@ -96,91 +117,155 @@ export default function AdminProductsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-800">
-              <tr>
-                {['Imagen', 'Producto', 'Precio', 'Acciones'].map((h) => (
-                  <th key={h} className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-600 ${h === 'Acciones' ? 'text-right' : 'text-left'}`}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id} className="border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/20 transition-colors">
-                  <td className="px-4 py-3.5">
-                    <div className="relative h-11 w-11 overflow-hidden rounded-xl bg-neutral-800 border border-neutral-700">
-                      {product.image_url ? (
-                        <Image
-                          src={product.image_url}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          onError={() => {}}
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-neutral-700">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-neutral-100">{product.name}</p>
-                      {getPromoLabel(product) && (
-                        <span className="rounded-md bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 text-[10px] font-bold text-orange-400 leading-none">
-                          {getPromoLabel(product)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-neutral-600 line-clamp-1 mt-0.5">{product.description}</p>
-                  </td>
-                  <td className="px-4 py-3.5 font-bold text-neutral-50 tabular-nums">
+
+          {/* ── Móvil: tarjetas ── */}
+          <div className="divide-y divide-neutral-800 sm:hidden">
+            {products.map((product) => (
+              <div key={product.id} className="flex items-center gap-3 px-4 py-3.5">
+                <ProductImage product={product} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="font-semibold text-neutral-100 truncate">{product.name}</p>
+                    {getPromoLabel(product) && (
+                      <span className="rounded-md bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 text-[10px] font-bold text-orange-400 leading-none shrink-0">
+                        {getPromoLabel(product)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm font-bold text-neutral-50 tabular-nums mt-0.5">
                     ${product.price.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    {confirmId === product.id ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="text-xs text-neutral-600">¿Eliminar?</span>
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  {confirmId === product.id ? (
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-[11px] text-neutral-600">¿Eliminar?</span>
+                      <div className="flex gap-1.5">
                         <button
                           onClick={() => handleDelete(product.id)}
                           disabled={deleting}
-                          className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                          className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
                         >
                           {deleting ? '...' : 'Sí'}
                         </button>
                         <button
                           onClick={() => setConfirmId(null)}
-                          className="rounded-lg border border-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 transition-colors"
+                          className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-400 hover:bg-neutral-800 transition-colors"
                         >
                           No
                         </button>
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/admin/products/${product.id}/edit`}
-                          className="rounded-lg border border-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50 transition-all"
-                        >
-                          Editar
-                        </Link>
-                        <button
-                          onClick={() => setConfirmId(product.id)}
-                          className="rounded-lg border border-red-900/50 px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-950/30 transition-colors"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    )}
-                  </td>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1.5">
+                      <Link
+                        href={`/admin/products/${product.id}/edit`}
+                        className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50 transition-all text-center"
+                      >
+                        Editar
+                      </Link>
+                      <button
+                        onClick={() => setConfirmId(product.id)}
+                        className="rounded-lg border border-red-900/50 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-950/30 transition-colors"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop: tabla ── */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-800">
+                <tr>
+                  {['Imagen', 'Producto', 'Precio', 'Acciones'].map((h) => (
+                    <th key={h} className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-600 ${h === 'Acciones' ? 'text-right' : 'text-left'}`}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product.id} className="border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/20 transition-colors">
+                    <td className="px-4 py-3.5">
+                      <div className="relative h-11 w-11 overflow-hidden rounded-xl bg-neutral-800 border border-neutral-700">
+                        {product.image_url ? (
+                          <Image
+                            src={product.image_url}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                            onError={() => {}}
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-neutral-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-neutral-100">{product.name}</p>
+                        {getPromoLabel(product) && (
+                          <span className="rounded-md bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 text-[10px] font-bold text-orange-400 leading-none">
+                            {getPromoLabel(product)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-neutral-600 line-clamp-1 mt-0.5">{product.description}</p>
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-neutral-50 tabular-nums">
+                      ${product.price.toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {confirmId === product.id ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-xs text-neutral-600">¿Eliminar?</span>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            disabled={deleting}
+                            className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                          >
+                            {deleting ? '...' : 'Sí'}
+                          </button>
+                          <button
+                            onClick={() => setConfirmId(null)}
+                            className="rounded-lg border border-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 transition-colors"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/products/${product.id}/edit`}
+                            className="rounded-lg border border-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50 transition-all"
+                          >
+                            Editar
+                          </Link>
+                          <button
+                            onClick={() => setConfirmId(product.id)}
+                            className="rounded-lg border border-red-900/50 px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-950/30 transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
     </div>

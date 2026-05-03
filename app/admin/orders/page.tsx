@@ -90,125 +90,228 @@ export default function AdminOrdersPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-800">
-              <tr>
-                {['ID', 'Cliente', 'Total', 'Estado', 'Fecha', ''].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const statusKey = (order.status ?? 'pending') as OrderStatus
-                const isExpanded = expandedId === order.id
-                const customerName =
-                  order.profiles?.name ||
-                  order.profiles?.email?.split('@')[0] ||
-                  'Sin nombre'
 
-                return (
-                  <Fragment key={order.id}>
-                    <tr
-                      className={`cursor-pointer border-b border-neutral-800/50 last:border-0 transition-colors ${
-                        isExpanded ? 'bg-neutral-800/50' : 'hover:bg-neutral-800/30'
-                      }`}
-                      onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                    >
-                      <td className="px-4 py-3.5 font-mono text-xs text-neutral-600">
-                        {order.id.slice(0, 8).toUpperCase()}
-                      </td>
-                      <td className="px-4 py-3.5 font-medium text-neutral-200">
-                        {customerName}
-                      </td>
-                      <td className="px-4 py-3.5 font-semibold text-neutral-50 tabular-nums">
-                        ${order.total.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[statusKey]}`}>
-                          {STATUS_LABELS[statusKey]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-neutral-600 text-xs">
+          {/* ── Móvil: tarjetas ── */}
+          <div className="divide-y divide-neutral-800 sm:hidden">
+            {orders.map((order) => {
+              const statusKey = (order.status ?? 'pending') as OrderStatus
+              const isExpanded = expandedId === order.id
+              const customerName =
+                order.profiles?.name ||
+                order.profiles?.email?.split('@')[0] ||
+                'Sin nombre'
+
+              return (
+                <div key={order.id}>
+                  <div
+                    className={`cursor-pointer px-4 py-4 transition-colors ${isExpanded ? 'bg-neutral-800/40' : ''}`}
+                    onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-mono text-[11px] text-neutral-600">
+                        #{order.id.slice(0, 8).toUpperCase()}
+                      </span>
+                      <span className="text-[11px] text-neutral-600">
                         {new Date(order.created_at).toLocaleDateString('es-MX', {
-                          year: 'numeric', month: 'short', day: 'numeric',
+                          day: 'numeric', month: 'short', year: 'numeric',
                         })}
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <span className="text-xs text-neutral-700">
-                          {isExpanded ? '▲' : '▼'}
-                        </span>
-                      </td>
-                    </tr>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-neutral-100">{customerName}</span>
+                      <span className="font-bold text-neutral-50 tabular-nums">
+                        ${order.total.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center justify-between">
+                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[statusKey]}`}>
+                        {STATUS_LABELS[statusKey]}
+                      </span>
+                      <span className="text-xs text-neutral-700">{isExpanded ? '▲' : '▼'}</span>
+                    </div>
+                  </div>
 
-                    {isExpanded && (
-                      <tr>
-                        <td colSpan={6} className="border-b border-neutral-800/50 bg-neutral-800/20 px-6 py-5">
-                          <div className="grid gap-6 sm:grid-cols-2">
-                            <div>
-                              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-600">
-                                Productos
-                              </p>
-                              <div className="space-y-2">
-                                {order.order_items.map((item) => (
-                                  <div key={item.id} className="flex justify-between text-sm">
-                                    <span className="text-neutral-300">
-                                      {item.products.name}
-                                      <span className="text-neutral-600"> × {item.quantity}</span>
-                                    </span>
-                                    <span className="text-neutral-400 tabular-nums">
-                                      ${(item.price * item.quantity).toFixed(2)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                              {(order.profiles?.phone || order.profiles?.address) && (
-                                <div className="mt-4 space-y-1 border-t border-neutral-800 pt-3">
-                                  {order.profiles?.phone && (
-                                    <p className="text-xs text-neutral-600">
-                                      <span className="text-neutral-500">Tel:</span> {order.profiles.phone}
-                                    </p>
-                                  )}
-                                  {order.profiles?.address && (
-                                    <p className="text-xs text-neutral-600">
-                                      <span className="text-neutral-500">Dir:</span> {order.profiles.address}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
+                  {isExpanded && (
+                    <div className="border-t border-neutral-800/50 bg-neutral-800/20 px-4 py-4 space-y-4">
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">Productos</p>
+                        <div className="space-y-2">
+                          {order.order_items.map((item) => (
+                            <div key={item.id} className="flex justify-between text-sm">
+                              <span className="text-neutral-300">
+                                {item.products.name}
+                                <span className="text-neutral-600"> × {item.quantity}</span>
+                              </span>
+                              <span className="text-neutral-400 tabular-nums">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </span>
                             </div>
-                            <div>
-                              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-600">
-                                Cambiar estado
+                          ))}
+                        </div>
+                        {(order.profiles?.phone || order.profiles?.address) && (
+                          <div className="mt-3 space-y-1 border-t border-neutral-800 pt-3">
+                            {order.profiles?.phone && (
+                              <p className="text-xs text-neutral-600">
+                                <span className="text-neutral-500">Tel:</span> {order.profiles.phone}
                               </p>
-                              <div className="flex flex-wrap gap-2">
-                                {(['pending', 'confirmed', 'delivered'] as OrderStatus[]).map((s) => (
-                                  <button
-                                    key={s}
-                                    disabled={statusKey === s || updating === order.id}
-                                    onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, s) }}
-                                    className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
-                                      statusKey === s
-                                        ? `${STATUS_COLORS[s]} ring-1 ring-inset ring-current`
-                                        : `${STATUS_BTN[s]} bg-transparent`
-                                    }`}
-                                  >
-                                    {updating === order.id ? '...' : STATUS_LABELS[s]}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                            )}
+                            {order.profiles?.address && (
+                              <p className="text-xs text-neutral-600">
+                                <span className="text-neutral-500">Dir:</span> {order.profiles.address}
+                              </p>
+                            )}
                           </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">Cambiar estado</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(['pending', 'confirmed', 'delivered'] as OrderStatus[]).map((s) => (
+                            <button
+                              key={s}
+                              disabled={statusKey === s || updating === order.id}
+                              onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, s) }}
+                              className={`rounded-xl border px-4 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
+                                statusKey === s
+                                  ? `${STATUS_COLORS[s]} ring-1 ring-inset ring-current`
+                                  : `${STATUS_BTN[s]} bg-transparent`
+                              }`}
+                            >
+                              {updating === order.id ? '...' : STATUS_LABELS[s]}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* ── Desktop: tabla ── */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-800">
+                <tr>
+                  {['ID', 'Cliente', 'Total', 'Estado', 'Fecha', ''].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => {
+                  const statusKey = (order.status ?? 'pending') as OrderStatus
+                  const isExpanded = expandedId === order.id
+                  const customerName =
+                    order.profiles?.name ||
+                    order.profiles?.email?.split('@')[0] ||
+                    'Sin nombre'
+
+                  return (
+                    <Fragment key={order.id}>
+                      <tr
+                        className={`cursor-pointer border-b border-neutral-800/50 last:border-0 transition-colors ${
+                          isExpanded ? 'bg-neutral-800/50' : 'hover:bg-neutral-800/30'
+                        }`}
+                        onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                      >
+                        <td className="px-4 py-3.5 font-mono text-xs text-neutral-600">
+                          {order.id.slice(0, 8).toUpperCase()}
+                        </td>
+                        <td className="px-4 py-3.5 font-medium text-neutral-200">
+                          {customerName}
+                        </td>
+                        <td className="px-4 py-3.5 font-semibold text-neutral-50 tabular-nums">
+                          ${order.total.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[statusKey]}`}>
+                            {STATUS_LABELS[statusKey]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-neutral-600 text-xs">
+                          {new Date(order.created_at).toLocaleDateString('es-MX', {
+                            year: 'numeric', month: 'short', day: 'numeric',
+                          })}
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <span className="text-xs text-neutral-700">
+                            {isExpanded ? '▲' : '▼'}
+                          </span>
                         </td>
                       </tr>
-                    )}
-                  </Fragment>
-                )
-              })}
-            </tbody>
-          </table>
+
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={6} className="border-b border-neutral-800/50 bg-neutral-800/20 px-6 py-5">
+                            <div className="grid gap-6 sm:grid-cols-2">
+                              <div>
+                                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+                                  Productos
+                                </p>
+                                <div className="space-y-2">
+                                  {order.order_items.map((item) => (
+                                    <div key={item.id} className="flex justify-between text-sm">
+                                      <span className="text-neutral-300">
+                                        {item.products.name}
+                                        <span className="text-neutral-600"> × {item.quantity}</span>
+                                      </span>
+                                      <span className="text-neutral-400 tabular-nums">
+                                        ${(item.price * item.quantity).toFixed(2)}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                                {(order.profiles?.phone || order.profiles?.address) && (
+                                  <div className="mt-4 space-y-1 border-t border-neutral-800 pt-3">
+                                    {order.profiles?.phone && (
+                                      <p className="text-xs text-neutral-600">
+                                        <span className="text-neutral-500">Tel:</span> {order.profiles.phone}
+                                      </p>
+                                    )}
+                                    {order.profiles?.address && (
+                                      <p className="text-xs text-neutral-600">
+                                        <span className="text-neutral-500">Dir:</span> {order.profiles.address}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+                                  Cambiar estado
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {(['pending', 'confirmed', 'delivered'] as OrderStatus[]).map((s) => (
+                                    <button
+                                      key={s}
+                                      disabled={statusKey === s || updating === order.id}
+                                      onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, s) }}
+                                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
+                                        statusKey === s
+                                          ? `${STATUS_COLORS[s]} ring-1 ring-inset ring-current`
+                                          : `${STATUS_BTN[s]} bg-transparent`
+                                      }`}
+                                    >
+                                      {updating === order.id ? '...' : STATUS_LABELS[s]}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
     </div>
