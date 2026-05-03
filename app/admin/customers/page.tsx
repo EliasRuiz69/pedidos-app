@@ -57,14 +57,11 @@ function Skeleton() {
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-neutral-800 last:border-0">
             <div className="skeleton h-4 w-4 rounded" />
-            <div className="skeleton h-4 w-16 rounded" />
             <div className="flex flex-col gap-1.5 flex-1">
               <div className="skeleton h-4 w-36 rounded" />
               <div className="skeleton h-3 w-44 rounded" />
             </div>
             <div className="skeleton h-4 w-24 rounded" />
-            <div className="skeleton h-4 w-32 rounded" />
-            <div className="skeleton h-4 w-20 rounded" />
           </div>
         ))}
       </div>
@@ -274,69 +271,125 @@ export default function AdminCustomersPage() {
         </div>
       )}
 
-      {/* Table */}
+      {/* List / Table */}
       {customers.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-800 py-20 text-center">
           <p className="text-sm text-neutral-600">No hay clientes registrados.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-800">
-              <tr>
-                <th className="w-10 px-4 py-3 text-left">
-                  <Checkbox
-                    checked={allSelected}
-                    indeterminate={someSelected}
-                    onChange={toggleAll}
-                  />
-                </th>
-                {['ID', 'Cliente', 'Teléfono', 'Dirección', 'Registro'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+
+          {/* ── Móvil: tarjetas ── */}
+          <div className="sm:hidden">
+            {/* Select all row */}
+            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-neutral-800 bg-neutral-800/30">
+              <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleAll} />
+              <span className="text-xs text-neutral-600">Seleccionar todos</span>
+            </div>
+            <div className="divide-y divide-neutral-800">
               {customers.map((c) => {
                 const isSelected = selected.has(c.id)
                 return (
-                  <tr
+                  <div
                     key={c.id}
                     onClick={() => toggle(c.id)}
-                    className={`border-b border-neutral-800/50 last:border-0 cursor-pointer transition-colors ${
-                      isSelected ? 'bg-orange-500/5' : 'hover:bg-neutral-800/20'
+                    className={`flex items-start gap-3 px-4 py-4 cursor-pointer transition-colors ${
+                      isSelected ? 'bg-orange-500/5' : ''
                     }`}
                   >
-                    <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="pt-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Checkbox checked={isSelected} onChange={() => toggle(c.id)} />
-                    </td>
-                    <td className="px-4 py-3.5 font-mono text-xs text-neutral-500">
-                      {c.id.slice(0, 8).toUpperCase()}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <p className="font-semibold text-neutral-100">{c.name || '—'}</p>
-                      <p className="text-xs text-neutral-600 mt-0.5">{c.email || '—'}</p>
-                    </td>
-                    <td className="px-4 py-3.5 text-neutral-400">
-                      {isValidPhone(c.phone) ? c.phone : (
-                        <span className="text-neutral-700">{c.phone || '—'}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-neutral-100 truncate">{c.name || '—'}</p>
+                        <span className="font-mono text-[10px] text-neutral-600 shrink-0">
+                          {c.id.slice(0, 8).toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-0.5 truncate">{c.email || '—'}</p>
+                      <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
+                        {c.phone && (
+                          <span className={isValidPhone(c.phone) ? 'text-neutral-400' : 'text-neutral-700'}>
+                            {c.phone}
+                          </span>
+                        )}
+                        {c.address && (
+                          <span className="text-neutral-600 truncate">{c.address}</span>
+                        )}
+                      </div>
+                      {c.created_at && (
+                        <p className="mt-1 text-[10px] text-neutral-700">
+                          {new Date(c.created_at).toLocaleDateString('es-MX')}
+                        </p>
                       )}
-                    </td>
-                    <td className="px-4 py-3.5 text-neutral-500 max-w-[180px] truncate">
-                      {c.address || '—'}
-                    </td>
-                    <td className="px-4 py-3.5 text-xs text-neutral-600 whitespace-nowrap">
-                      {c.created_at
-                        ? new Date(c.created_at).toLocaleDateString('es-MX')
-                        : '—'}
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 )
               })}
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          {/* ── Desktop: tabla ── */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-800">
+                <tr>
+                  <th className="w-10 px-4 py-3 text-left">
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      onChange={toggleAll}
+                    />
+                  </th>
+                  {['ID', 'Cliente', 'Teléfono', 'Dirección', 'Registro'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map((c) => {
+                  const isSelected = selected.has(c.id)
+                  return (
+                    <tr
+                      key={c.id}
+                      onClick={() => toggle(c.id)}
+                      className={`border-b border-neutral-800/50 last:border-0 cursor-pointer transition-colors ${
+                        isSelected ? 'bg-orange-500/5' : 'hover:bg-neutral-800/20'
+                      }`}
+                    >
+                      <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox checked={isSelected} onChange={() => toggle(c.id)} />
+                      </td>
+                      <td className="px-4 py-3.5 font-mono text-xs text-neutral-500">
+                        {c.id.slice(0, 8).toUpperCase()}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <p className="font-semibold text-neutral-100">{c.name || '—'}</p>
+                        <p className="text-xs text-neutral-600 mt-0.5">{c.email || '—'}</p>
+                      </td>
+                      <td className="px-4 py-3.5 text-neutral-400">
+                        {isValidPhone(c.phone) ? c.phone : (
+                          <span className="text-neutral-700">{c.phone || '—'}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 text-neutral-500 max-w-[180px] truncate">
+                        {c.address || '—'}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs text-neutral-600 whitespace-nowrap">
+                        {c.created_at
+                          ? new Date(c.created_at).toLocaleDateString('es-MX')
+                          : '—'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
 
