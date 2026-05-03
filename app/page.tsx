@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
-import { getProducts } from '@/lib/products'
+import { createSupabaseServer } from '@/lib/supabaseServer'
 import ProductCard from '@/components/ui/ProductCard'
+import type { Product } from '@/types'
 
 function ProductSkeleton() {
   return (
@@ -17,7 +18,13 @@ function ProductSkeleton() {
 }
 
 async function ProductList() {
-  const products = await getProducts()
+  const supabase = await createSupabaseServer()
+  const { data } = await supabase
+    .from('products')
+    .select('*')
+    .order('is_promo', { ascending: false })
+    .order('name', { ascending: true })
+  const products = (data ?? []) as Product[]
 
   if (products.length === 0) {
     return (
